@@ -4,14 +4,15 @@
   "description": "",
   "main": "src/main.js",
   "scripts": {
-    "start": "electron . --no-sandbox",
+    "start": "set ELECTRON_RUN_AS_NODE=&& electron . --no-sandbox",
     "dist": "electron-builder -w -l --x64",
-    "dist:mac": "electron-builder -m"
+    "dist:win": "electron-builder --win --x64",
+    "dist:linux": "electron-builder --linux --x64",
+    "dist:mac": "electron-builder --mac"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
     "react": "^19.2.3",
     "react-dom": "^19.2.3"
@@ -35,8 +36,18 @@
         ]
       }
     ],
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "src/assets/icon.ico",
+      "uninstallerIcon": "src/assets/icon.ico",
+      "uninstallDisplayName": "BPG Converter",
+      "shortcutName": "BPG Converter"
+    },
     "win": {
-      "target": "nsis"
+      "target": "nsis",
+      "icon": "src/assets/icon.ico"
     },
     "linux": {
       "target": "AppImage",

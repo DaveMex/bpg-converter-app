@@ -18,7 +18,7 @@ function createWindow() {
         },
         autoHideMenuBar: true,
         backgroundColor: '#121212',
-        icon: path.join(__dirname, 'assets', 'logo.svg')
+        icon: path.join(__dirname, 'assets', 'icon.ico')
     });
 
     win.loadFile(path.join(__dirname, 'index.html'));
