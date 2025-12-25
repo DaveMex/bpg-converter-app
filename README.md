@@ -18,7 +18,7 @@ A modern, desktop-based GUI tool for converting images to the Better Portable Gr
 ### Setup
 1.  Clone the repository:
     ```bash
-    git clone https://github.com/YOUR_USERNAME/bpg-converter-app.git
+    git clone https://github.com/DaveMex/bpg-converter-app.git
     cd bpg-converter-app
     ```
 2.  Install dependencies:
