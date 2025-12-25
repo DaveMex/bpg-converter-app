@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>BPG Converter</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Using Google Fonts for premium look -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+    </style>
+</head>
+
+<body>
+    <div class="app-layout">
+        <div class="sidebar">
+            <div class="brand-container">
+                <img src="assets/logo.svg" alt="BPG Logo" class="app-logo">
+                <h1>BPG Converter</h1>
+            </div>
+
+            <div class="sidebar-scroll-area">
+                <div id="drop-zone" class="drop-zone">
+                    <p>Drag & Drop images here</p>
+                    <p>or click to select</p>
+                </div>
+
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="quality">Quality (0-51):</label>
+                        <input type="range" id="quality" min="0" max="51" value="28">
+                        <span id="quality-val">28</span>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="compression">Compression (1-9):</label>
+                        <input type="range" id="compression" min="1" max="9" value="9">
+                        <span id="compression-val">9</span>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="format">Encoder:</label>
+                        <select id="format">
+                            <option value="x265">x265 (High Quality)</option>
+                            <option value="jctvc">JCT-VC (Reference)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <!-- End Sidebar Scroll Area -->
+
+            <div id="status-container" class="status-container">
+                <div id="status-pill" class="status-pill hidden"></div>
+                <button id="open-folder-btn" class="btn-icon-small hidden" title="Navigate to file location">
+                    📂
+                </button>
+            </div>
+
+            <div class="sidebar-footer">
+                <div class="footer-controls">
+                    <button id="toggle-logs-btn" class="btn-icon" title="Toggle Console Logs">
+                        Console 📋
+                    </button>
+                    <button id="about-btn" class="btn-text">About</button>
+                </div>
+                <button id="donate-btn" class="btn-primary full-width">
+                    ☕ Buy me a Coffee
+                </button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div id="preview-area" class="preview-area">
+                <p class="placeholder-text">Converted image preview will appear here</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Console Drawer -->
+    <div id="console-drawer" class="console-drawer closed">
+        <div class="console-header">
+            <span>Debug Console</span>
+            <div class="console-actions">
+                <button id="clear-logs-btn" class="btn-small">Clear</button>
+                <button id="save-logs-btn" class="btn-small">Save</button>
+                <button id="close-console-btn" class="btn-icon-small">▼</button>
+            </div>
+        </div>
+        <div id="log-area" class="log-content"></div>
+    </div>
+
+    <!-- About Modal -->
+    <div id="about-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>About BPG Converter</h2>
+            <p>A GUI tool for the Better Portable Graphics (BPG) format.</p>
+            <p>Powered by <strong>libbpg</strong> and <strong>Electron</strong>.</p>
+            <hr class="modal-divider">
+            <p class="credits-text">Developed with ❤️ by <a href="https://linktr.ee/davemx" id="social-link"
+                    style="color: inherit; text-decoration: none; border-bottom: 1px dashed currentColor;">David
+                    Hernandez Mendez</a>.</p>
+            <p>With the help of Google Antigravity and Gemini 3 pro.</p>
+            <p class="website-link-container"><a href="#" id="website-link">Visit Official Website</a></p>
+            <p class="credits-small">If you find this tool useful, consider supporting its development!</p>
+            <button id="modal-donate-btn" class="btn-primary">Support Development</button>
+        </div>
+    </div>
+    <script src="bpgdec.js"></script>
+    <script src="renderer.js"></script>
+</body>
+
+</html>
+```
