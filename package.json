@@ -1,6 +1,6 @@
 {
   "name": "bpg-converter-app",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A desktop application to convert images to BPG format",
   "repository": {
     "type": "git",
