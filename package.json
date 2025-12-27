@@ -1,6 +1,6 @@
 {
   "name": "bpg-converter-app",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A desktop application to convert images to BPG format",
   "repository": {
     "type": "git",
@@ -15,7 +15,7 @@
     "dist:mac": "electron-builder --mac"
   },
   "keywords": [],
-  "author": "David Hernandez Mendez",
+  "author": "David Hernández Méndez",
   "license": "ISC",
   "dependencies": {
     "electron-log": "^5.4.3",
