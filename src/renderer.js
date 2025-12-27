@@ -96,6 +96,23 @@ dropZone.addEventListener('drop', async (e) => {
     log('Batch conversion complete.', 'success');
 });
 
+// Click to select
+dropZone.addEventListener('click', async () => {
+    const filePaths = await window.api.selectFile();
+    if (filePaths && filePaths.length > 0) {
+        // Clear preview area at start of batch
+        previewArea.innerHTML = '';
+        log(`Batch started: ${filePaths.length} file(s) selected via dialog.`, 'info');
+
+        for (let i = 0; i < filePaths.length; i++) {
+            const fileName = filePaths[i].split(/[/\\]/).pop();
+            log(`Processing ${i + 1} of ${filePaths.length}: ${fileName}...`, 'info');
+            await processFile(filePaths[i]);
+        }
+        log('Batch conversion complete.', 'success');
+    }
+});
+
 function updateStatus(message, type = 'ready') {
     if (!statusPill) return;
 
@@ -180,13 +197,24 @@ if (saveLogsBtn) {
     });
 }
 
-async function processFile(file) {
+async function processFile(fileOrPath) {
     const quality = parseInt(qualityInput.value);
     const compression = parseInt(compressionInput.value);
     const encoder = formatInput.value;
 
     try {
-        const filePath = window.api.getFilePath(file);
+        let filePath;
+        let fileName;
+
+        if (typeof fileOrPath === 'string') {
+            filePath = fileOrPath;
+            // Extract filename from path for logging
+            fileName = filePath.split(/[/\\]/).pop();
+        } else {
+            filePath = window.api.getFilePath(fileOrPath);
+            fileName = fileOrPath.name;
+        }
+
         const outputPath = await window.api.convertImage({
             filePath,
             quality,
@@ -248,7 +276,8 @@ async function processFile(file) {
         }
 
     } catch (error) {
-        log(`Error converting ${file.name}: ${error}`, 'error');
+        // file.name is not accessible here if we change the scope, let's fix it or just log generic error
+        log(`Error converting image: ${error}`, 'error');
     }
 }
 
@@ -268,7 +297,7 @@ function openDonation() {
 
 function openWebsite(e) {
     e.preventDefault();
-    const websiteUrl = 'https://example.com'; // TODO: Replace with actual website
+    const websiteUrl = 'https://bpgconverter.com'; // TODO: Replace with actual website
     window.api.openExternal(websiteUrl);
 }
 

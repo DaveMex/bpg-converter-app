@@ -1,4 +1,6 @@
-const { app, BrowserWindow, ipcMain, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, shell, dialog } = require('electron');
+const { autoUpdater } = require('electron-updater');
+const log = require('electron-log');
 const path = require('path');
 const { execFile } = require('child_process');
 const os = require('os');
@@ -28,11 +30,46 @@ function createWindow() {
 app.whenReady().then(() => {
     createWindow();
 
+    // Auto-updater config
+    autoUpdater.logger = log;
+    autoUpdater.logger.transports.file.level = 'info';
+
+    // Check for updates
+    autoUpdater.checkForUpdatesAndNotify();
+
     app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0) {
             createWindow();
         }
     });
+});
+
+// Update events
+autoUpdater.on('update-available', () => {
+    log.info('Update available.');
+    dialog.showMessageBox({
+        type: 'info',
+        title: 'Update Available',
+        message: 'A new version is available. Downloading now...'
+    });
+});
+
+autoUpdater.on('update-downloaded', () => {
+    log.info('Update downloaded');
+    dialog.showMessageBox({
+        type: 'question',
+        title: 'Update Ready',
+        message: 'Update downloaded. Restart and install?',
+        buttons: ['Yes', 'Later']
+    }).then((result) => {
+        if (result.response === 0) {
+            autoUpdater.quitAndInstall();
+        }
+    });
+});
+
+autoUpdater.on('error', (err) => {
+    log.info('Error in auto-updater. ' + err);
 });
 
 app.on('window-all-closed', () => {
@@ -47,6 +84,14 @@ ipcMain.handle('open-external', async (event, url) => {
 
 ipcMain.handle('show-item-in-folder', async (event, filePath) => {
     await shell.showItemInFolder(filePath);
+});
+
+ipcMain.handle('select-file', async () => {
+    const result = await dialog.showOpenDialog({
+        properties: ['openFile', 'multiSelections'],
+        filters: [{ name: 'Images', extensions: ['png', 'jpg', 'jpeg'] }]
+    });
+    return result.canceled ? [] : result.filePaths;
 });
 
 ipcMain.handle('convert-image', async (event, { filePath, quality, compression, encoder }) => {

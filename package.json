@@ -1,7 +1,11 @@
 {
   "name": "bpg-converter-app",
   "version": "1.0.0",
-  "description": "",
+  "description": "A desktop application to convert images to BPG format",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DaveMex/bpg-converter-app.git"
+  },
   "main": "src/main.js",
   "scripts": {
     "start": "set ELECTRON_RUN_AS_NODE=&& electron . --no-sandbox",
@@ -11,9 +15,11 @@
     "dist:mac": "electron-builder --mac"
   },
   "keywords": [],
-  "author": "",
+  "author": "David Hernandez Mendez",
   "license": "ISC",
   "dependencies": {
+    "electron-log": "^5.4.3",
+    "electron-updater": "^6.6.2",
     "react": "^19.2.3",
     "react-dom": "^19.2.3"
   },
@@ -40,21 +46,28 @@
       "oneClick": false,
       "perMachine": false,
       "allowToChangeInstallationDirectory": true,
-      "installerIcon": "src/assets/icon.ico",
-      "uninstallerIcon": "src/assets/icon.ico",
       "uninstallDisplayName": "BPG Converter",
       "shortcutName": "BPG Converter"
     },
     "win": {
       "target": "nsis",
-      "icon": "src/assets/icon.ico"
+      "icon": "src/assets/icon.png"
     },
     "linux": {
       "target": "AppImage",
-      "category": "Graphics"
+      "category": "Graphics",
+      "icon": "src/assets/icon.png"
     },
     "mac": {
-      "target": "dmg"
-    }
+      "target": "dmg",
+      "icon": "src/assets/icon.icns"
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "DaveMex",
+        "repo": "bpg-converter-app"
+      }
+    ]
   }
 }
