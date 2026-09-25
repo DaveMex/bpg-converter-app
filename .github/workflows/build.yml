@@ -31,12 +31,18 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
+      - name: Install FPM (Linux only)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y ruby ruby-dev build-essential rpm
+          sudo gem install --no-document fpm
+
       - name: Build Electron App
         # GitHub Actions sets different env vars, electron-builder handles the rest
         # We run the command specific to the OS we are on
         run: |
           if [ "$RUNNER_OS" == "Linux" ]; then
-            sudo apt-get update && sudo apt-get install --no-install-recommends -y rpm
             chmod +x resources/bin/linux/bpgenc || true
             npm run dist:linux
           elif [ "$RUNNER_OS" == "Windows" ]; then
@@ -49,6 +55,8 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: false
+          USE_SYSTEM_FPM: "true"
+          DEBUG: "electron-builder"
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
