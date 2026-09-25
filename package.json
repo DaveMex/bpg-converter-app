@@ -15,7 +15,10 @@
     "dist:mac": "electron-builder --mac --universal || electron-builder --mac --x64 --arm64"
   },
   "keywords": [],
-  "author": "David Hernández Méndez",
+  "author": {
+    "name": "David Hernández Méndez",
+    "email": "hernandez.david@live.com"
+  },
   "license": "ISC",
   "dependencies": {
     "electron-log": "^5.4.3",
