@@ -66,9 +66,7 @@
       "hardenedRuntime": false,
       "gatekeeperAssess": false,
       "identity": null,
-      "universalOptions": {
-        "x64ArchFiles": "**/bin/mac/*"
-      }
+      "x64ArchFiles": "**/bin/mac/*"
     },
     "publish": [
       {
