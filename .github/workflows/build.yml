@@ -15,6 +15,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
 
@@ -36,15 +37,18 @@ jobs:
         run: |
           if [ "$RUNNER_OS" == "Linux" ]; then
             sudo apt-get update && sudo apt-get install --no-install-recommends -y rpm
+            chmod +x resources/bin/linux/bpgenc || true
             npm run dist:linux
           elif [ "$RUNNER_OS" == "Windows" ]; then
             npm run dist:win
           elif [ "$RUNNER_OS" == "macOS" ]; then
+            chmod +x resources/bin/mac/bpgenc || true
             npm run dist:mac
           fi
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_IDENTITY_AUTO_DISCOVERY: false
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
