@@ -89,12 +89,31 @@ ipcMain.handle('show-item-in-folder', async (event, filePath) => {
 ipcMain.handle('select-file', async () => {
     const result = await dialog.showOpenDialog({
         properties: ['openFile', 'multiSelections'],
-        filters: [{ name: 'Images', extensions: ['png', 'jpg', 'jpeg'] }]
+        filters: [{ name: 'Images & BPG', extensions: ['png', 'jpg', 'jpeg', 'webp', 'bpg'] }]
     });
     return result.canceled ? [] : result.filePaths;
 });
 
-ipcMain.handle('convert-image', async (event, { filePath, quality, compression, encoder }) => {
+ipcMain.handle('select-folder', async () => {
+    const result = await dialog.showOpenDialog({
+        properties: ['openDirectory', 'createDirectory']
+    });
+    return result.canceled ? null : result.filePaths[0];
+});
+
+ipcMain.handle('save-decoded-image', async (event, { base64Data, originalPath, outputFormat = 'png', customOutputDir }) => {
+    const ext = outputFormat === 'jpeg' ? '.jpg' : '.png';
+    const outputDir = (customOutputDir && fs.existsSync(customOutputDir)) ? customOutputDir : path.dirname(originalPath);
+    const baseName = path.basename(originalPath, path.extname(originalPath));
+    const outputPath = path.join(outputDir, `${baseName}${ext}`);
+
+    const base64Image = base64Data.replace(/^data:image\/\w+;base64,/, '');
+    const buffer = Buffer.from(base64Image, 'base64');
+    await fs.promises.writeFile(outputPath, buffer);
+    return outputPath;
+});
+
+ipcMain.handle('convert-image', async (event, { filePath, quality, compression, encoder, customOutputDir }) => {
     return new Promise((resolve, reject) => {
         const platform = os.platform();
         let binName = 'bpgenc';
@@ -119,8 +138,8 @@ ipcMain.handle('convert-image', async (event, { filePath, quality, compression, 
             binPath = path.join(process.resourcesPath, 'bin', platformDir, binName);
         }
 
-        // Output file: same name but .bpg
-        const outputDir = path.dirname(filePath);
+        // Output file: same name but .bpg in customOutputDir or original dir
+        const outputDir = (customOutputDir && fs.existsSync(customOutputDir)) ? customOutputDir : path.dirname(filePath);
         const ext = path.extname(filePath);
         const baseName = path.basename(filePath, ext);
         const outputPath = path.join(outputDir, `${baseName}.bpg`);

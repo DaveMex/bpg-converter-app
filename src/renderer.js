@@ -28,8 +28,41 @@ const closeConsoleBtn = document.getElementById('close-console-btn');
 const clearLogsBtn = document.getElementById('clear-logs-btn');
 const saveLogsBtn = document.getElementById('save-logs-btn');
 const openFolderBtn = document.getElementById('open-folder-btn');
+const selectOutputFolderBtn = document.getElementById('select-output-folder-btn');
+const resetOutputFolderBtn = document.getElementById('reset-output-folder-btn');
+const outputFolderDisplay = document.getElementById('output-folder-display');
+const reverseFormatInput = document.getElementById('reverse-format');
 
 let lastConvertedPath = null;
+let customOutputDir = null;
+
+// Output Folder Selection
+if (selectOutputFolderBtn) {
+    selectOutputFolderBtn.addEventListener('click', async () => {
+        const folder = await window.api.selectFolder();
+        if (folder) {
+            customOutputDir = folder;
+            if (outputFolderDisplay) {
+                outputFolderDisplay.innerText = folder;
+                outputFolderDisplay.title = folder;
+            }
+            if (resetOutputFolderBtn) resetOutputFolderBtn.classList.remove('hidden');
+            log(`Output folder set to: ${folder}`, 'info');
+        }
+    });
+}
+
+if (resetOutputFolderBtn) {
+    resetOutputFolderBtn.addEventListener('click', () => {
+        customOutputDir = null;
+        if (outputFolderDisplay) {
+            outputFolderDisplay.innerText = 'Same as source';
+            outputFolderDisplay.title = 'Same as input image';
+        }
+        resetOutputFolderBtn.classList.add('hidden');
+        log('Output folder reset to source location', 'info');
+    });
+}
 
 // Update UI values
 qualityInput.addEventListener('input', (e) => {
@@ -52,6 +85,7 @@ compressionInput.addEventListener('input', (e) => {
     compressionVal.innerText = e.target.value;
 });
 
+
 // Drag & Drop
 dropZone.addEventListener('dragover', (e) => {
     e.preventDefault();
@@ -71,26 +105,27 @@ dropZone.addEventListener('drop', async (e) => {
     dropZone.classList.remove('drag-over');
 
     const files = Array.from(e.dataTransfer.files);
+    const validExtensions = ['.png', '.jpg', '.jpeg', '.webp', '.bpg'];
 
-    // Filter for images
-    const images = files.filter(f => {
+    // Filter for valid images and BPG files
+    const validFiles = files.filter(f => {
         const ext = f.name.toLowerCase();
-        return ext.endsWith('.png') || ext.endsWith('.jpg') || ext.endsWith('.jpeg');
+        return validExtensions.some(validExt => ext.endsWith(validExt));
     });
 
-    if (images.length === 0) {
-        log('No valid JPG/PNG files found.', 'error');
+    if (validFiles.length === 0) {
+        log('No valid image (PNG/JPG/WebP) or BPG files found.', 'error');
         return;
     }
 
     // Clear preview area at start of batch
     previewArea.innerHTML = '';
 
-    log(`Batch started: ${images.length} file(s) found.`, 'info');
+    log(`Batch started: ${validFiles.length} file(s) found.`, 'info');
 
-    for (let i = 0; i < images.length; i++) {
-        log(`Processing ${i + 1} of ${images.length}: ${images[i].name}...`, 'info');
-        await processFile(images[i]);
+    for (let i = 0; i < validFiles.length; i++) {
+        log(`Processing ${i + 1} of ${validFiles.length}: ${validFiles[i].name}...`, 'info');
+        await processFile(validFiles[i]);
     }
 
     log('Batch conversion complete.', 'success');
@@ -208,76 +243,105 @@ async function processFile(fileOrPath) {
 
         if (typeof fileOrPath === 'string') {
             filePath = fileOrPath;
-            // Extract filename from path for logging
             fileName = filePath.split(/[/\\]/).pop();
         } else {
             filePath = window.api.getFilePath(fileOrPath);
             fileName = fileOrPath.name;
         }
 
-        const outputPath = await window.api.convertImage({
-            filePath,
-            quality,
-            compression,
-            encoder
-        });
+        const isBpg = fileName.toLowerCase().endsWith('.bpg');
 
-        lastConvertedPath = outputPath; // Store for "Open Folder"
-        log(`Success! Saved to ${outputPath}`, 'success');
+        if (isBpg) {
+            // Conversión inversa: BPG -> PNG o JPEG
+            log(`Decoding BPG file: ${fileName}...`, 'info');
+            if (typeof BPGDecoder === 'undefined') {
+                log('Error: BPGDecoder is not defined. Script might not be loaded.', 'error');
+                return;
+            }
 
-        if (typeof BPGDecoder === 'undefined') {
-            log('Error: BPGDecoder is not defined. Script might not be loaded.', 'error');
-            return;
-        }
-
-        try {
-            // Create canvas and context explicitly
             const canvas = document.createElement('canvas');
-            if (!canvas) throw new Error("Failed to create canvas element");
-
-            // Append first to ensure it's in DOM (defensive)
             previewArea.appendChild(canvas);
 
             const ctx = canvas.getContext('2d');
-            if (!ctx) {
-                log('FATAL: canvas.getContext("2d") returned null', 'error');
-                throw new Error("Could not get 2D context from canvas");
-            }
+            if (!ctx) throw new Error("Could not get 2D context from canvas");
 
-            // Test context
-            try {
-                const testData = ctx.createImageData(1, 1);
-                log('Context validation: createImageData works', 'success');
-            } catch (e) {
-                log(`Context validation failed: ${e.message}`, 'error');
-            }
+            const decoder = new BPGDecoder(ctx);
 
-            log(`Creating BPGDecoder with context: ${!!ctx}`, 'info');
-            const img = new BPGDecoder(ctx);
+            await new Promise((resolve, reject) => {
+                decoder.onload = async function () {
+                    try {
+                        if (this.imageData) {
+                            canvas.width = this.imageData.width;
+                            canvas.height = this.imageData.height;
+                            ctx.putImageData(this.imageData, 0, 0);
 
-            // Handle loading
-            img.onload = function () {
-                log('BPG Image decoded successfully.', 'success');
-                // Resize canvas to match image dimensions
-                if (this.imageData) {
-                    canvas.width = this.imageData.width;
-                    canvas.height = this.imageData.height;
-                    ctx.putImageData(this.imageData, 0, 0);
+                            const reverseFormat = reverseFormatInput ? reverseFormatInput.value : 'png';
+                            const mimeType = reverseFormat === 'jpeg' ? 'image/jpeg' : 'image/png';
+                            const dataUrl = canvas.toDataURL(mimeType, 0.95);
+
+                            const savedPath = await window.api.saveDecodedImage({
+                                base64Data: dataUrl,
+                                originalPath: filePath,
+                                outputFormat: reverseFormat,
+                                customOutputDir
+                            });
+
+                            lastConvertedPath = savedPath;
+                            log(`Converted BPG ➔ ${reverseFormat.toUpperCase()}: ${savedPath}`, 'success');
+                        }
+                        resolve();
+                    } catch (err) {
+                        reject(err);
+                    }
+                };
+
+                const fileUrl = 'file:///' + filePath.replace(/\\/g, '/');
+                decoder.load(fileUrl);
+            });
+
+        } else {
+            // Conversión normal: Imagen -> BPG
+            const outputPath = await window.api.convertImage({
+                filePath,
+                quality,
+                compression,
+                encoder,
+                customOutputDir
+            });
+
+            lastConvertedPath = outputPath;
+            log(`Converted Image ➔ BPG: ${outputPath}`, 'success');
+
+            if (typeof BPGDecoder !== 'undefined') {
+                try {
+                    const canvas = document.createElement('canvas');
+                    previewArea.appendChild(canvas);
+
+                    const ctx = canvas.getContext('2d');
+                    if (ctx) {
+                        const img = new BPGDecoder(ctx);
+                        await new Promise((resolve) => {
+                            img.onload = function () {
+                                log('BPG Image decoded preview ready.', 'success');
+                                if (this.imageData) {
+                                    canvas.width = this.imageData.width;
+                                    canvas.height = this.imageData.height;
+                                    ctx.putImageData(this.imageData, 0, 0);
+                                }
+                                resolve();
+                            };
+                            const fileUrl = 'file:///' + outputPath.replace(/\\/g, '/');
+                            img.load(fileUrl);
+                        });
+                    }
+                } catch (decoderError) {
+                    log(`Decoder Preview Error: ${decoderError.message}`, 'error');
                 }
-            };
-
-            const fileUrl = 'file:///' + outputPath.replace(/\\/g, '/');
-            log(`Loading BPG from: ${fileUrl}`, 'info');
-
-            img.load(fileUrl);
-
-        } catch (decoderError) {
-            log(`Decoder Error: ${decoderError.message}`, 'error');
+            }
         }
 
     } catch (error) {
-        // file.name is not accessible here if we change the scope, let's fix it or just log generic error
-        log(`Error converting image: ${error}`, 'error');
+        log(`Error processing file: ${error}`, 'error');
     }
 }
 

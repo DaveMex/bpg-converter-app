@@ -1,7 +1,7 @@
 {
   "name": "bpg-converter-app",
-  "version": "1.0.4",
-  "description": "A desktop application to convert images to BPG format",
+  "version": "1.1.0",
+  "description": "A desktop application to convert images to BPG format and vice versa",
   "repository": {
     "type": "git",
     "url": "https://github.com/DaveMex/bpg-converter-app.git"
@@ -12,16 +12,14 @@
     "dist": "electron-builder -w -l --x64",
     "dist:win": "electron-builder --win --x64",
     "dist:linux": "electron-builder --linux --x64",
-    "dist:mac": "electron-builder --mac"
+    "dist:mac": "electron-builder --mac --universal"
   },
   "keywords": [],
   "author": "David Hernández Méndez",
   "license": "ISC",
   "dependencies": {
     "electron-log": "^5.4.3",
-    "electron-updater": "^6.6.2",
-    "react": "^19.2.3",
-    "react-dom": "^19.2.3"
+    "electron-updater": "^6.6.2"
   },
   "devDependencies": {
     "electron": "^39.2.7",
@@ -54,13 +52,19 @@
       "icon": "src/assets/icon.png"
     },
     "linux": {
-      "target": "AppImage",
+      "target": [
+        "AppImage",
+        "deb",
+        "rpm"
+      ],
       "category": "Graphics",
       "icon": "src/assets/icon.png"
     },
     "mac": {
       "target": "dmg",
-      "icon": "src/assets/icon.icns"
+      "icon": "src/assets/icon.icns",
+      "hardenedRuntime": false,
+      "gatekeeperAssess": false
     },
     "publish": [
       {

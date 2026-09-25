@@ -607,3 +607,34 @@ select {
 .btn-icon-small:hover {
     color: white;
 }
+
+/* Folder Selector & Section Labels */
+.folder-selector-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #2a2a2a;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid #3d3d3d;
+}
+
+.folder-display {
+    flex: 1;
+    font-size: 0.8rem;
+    color: var(--hint-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.section-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--secondary-color);
+    margin-top: 15px;
+    margin-bottom: 8px;
+    display: block;
+    font-weight: 600;
+}

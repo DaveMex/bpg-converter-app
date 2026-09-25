@@ -2,8 +2,10 @@ const { contextBridge, ipcRenderer, webUtils } = require('electron');
 
 contextBridge.exposeInMainWorld('api', {
     convertImage: (data) => ipcRenderer.invoke('convert-image', data),
+    saveDecodedImage: (data) => ipcRenderer.invoke('save-decoded-image', data),
     getFilePath: (file) => webUtils.getPathForFile(file),
     openExternal: (url) => ipcRenderer.invoke('open-external', url),
     showItemInFolder: (path) => ipcRenderer.invoke('show-item-in-folder', path),
-    selectFile: () => ipcRenderer.invoke('select-file')
+    selectFile: () => ipcRenderer.invoke('select-file'),
+    selectFolder: () => ipcRenderer.invoke('select-folder')
 });

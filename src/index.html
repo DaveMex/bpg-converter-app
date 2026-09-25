@@ -22,11 +22,13 @@
 
             <div class="sidebar-scroll-area">
                 <div id="drop-zone" class="drop-zone">
-                    <p>Drag & Drop images here</p>
-                    <p>or click to select</p>
+                    <p style="font-weight: 600; margin: 0 0 6px 0;">Drag & Drop files here</p>
+                    <p style="font-size: 0.82rem; color: var(--hint-color); margin: 0;">PNG, JPG, WebP ⇄ BPG</p>
+                    <p style="font-size: 0.75rem; color: var(--hint-color); margin-top: 4px;">or click to select</p>
                 </div>
 
                 <div class="controls">
+                    <span class="section-label">Encode to BPG</span>
                     <div class="control-group">
                         <label for="quality">Quality (0-51):</label>
                         <input type="range" id="quality" min="0" max="51" value="28">
@@ -45,6 +47,25 @@
                             <option value="x265">x265 (High Quality)</option>
                             <option value="jctvc">JCT-VC (Reference)</option>
                         </select>
+                    </div>
+
+                    <span class="section-label">Decode from BPG</span>
+                    <div class="control-group">
+                        <label for="reverse-format">Convert BPG to:</label>
+                        <select id="reverse-format">
+                            <option value="png">PNG (Lossless)</option>
+                            <option value="jpeg">JPEG (Standard)</option>
+                        </select>
+                    </div>
+
+                    <span class="section-label">Destination</span>
+                    <div class="control-group">
+                        <label>Output Folder:</label>
+                        <div class="folder-selector-row">
+                            <span id="output-folder-display" class="folder-display" title="Same as input image">Same as source</span>
+                            <button id="select-output-folder-btn" type="button" class="btn-small" title="Choose destination folder">Browse...</button>
+                            <button id="reset-output-folder-btn" type="button" class="btn-icon-small hidden" title="Reset to same as source">✕</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -95,7 +116,9 @@
         <div class="modal-content">
             <span class="close-btn">&times;</span>
             <h2>About BPG Converter</h2>
-            <p>A GUI tool for the Better Portable Graphics (BPG) format.</p>
+            <p style="font-size: 0.85rem; color: var(--secondary-color); font-weight: 600; margin-top: -5px;">Version 1.1.0</p>
+            <p>A cross-platform GUI tool for the Better Portable Graphics (BPG) format.</p>
+            <p>Converts images (PNG, JPG, WebP) to BPG and decodes BPG back to PNG/JPEG.</p>
             <p>Powered by <strong>libbpg</strong> and <strong>Electron</strong>.</p>
             <hr class="modal-divider">
             <p class="credits-text">Developed with ❤️ by <a href="https://linktr.ee/davemx" id="social-link"
