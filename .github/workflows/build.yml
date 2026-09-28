@@ -42,14 +42,20 @@ jobs:
         # GitHub Actions sets different env vars, electron-builder handles the rest
         # We run the command specific to the OS we are on
         run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            PUBLISH_ARG="--publish always"
+          else
+            PUBLISH_ARG="--publish never"
+          fi
+
           if [ "$RUNNER_OS" == "Linux" ]; then
             chmod +x resources/bin/linux/bpgenc || true
-            npm run dist:linux
+            npx electron-builder --linux --x64 $PUBLISH_ARG
           elif [ "$RUNNER_OS" == "Windows" ]; then
-            npm run dist:win
+            npx electron-builder --win --x64 $PUBLISH_ARG
           elif [ "$RUNNER_OS" == "macOS" ]; then
             chmod +x resources/bin/mac/bpgenc || true
-            npm run dist:mac
+            npx electron-builder --mac --universal $PUBLISH_ARG || npx electron-builder --mac --x64 --arm64 $PUBLISH_ARG
           fi
         shell: bash
         env:

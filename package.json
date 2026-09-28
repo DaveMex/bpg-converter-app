@@ -1,6 +1,6 @@
 {
   "name": "bpg-converter-app",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "A desktop application to convert images to BPG format and vice versa",
   "repository": {
     "type": "git",
@@ -30,7 +30,7 @@
   },
   "build": {
     "appId": "com.bpg.converter",
-    "productName": "BPG Converter",
+    "productName": "BPG-Converter",
     "directories": {
       "output": "dist"
     },
@@ -61,7 +61,13 @@
         "rpm"
       ],
       "category": "Graphics",
-      "icon": "src/assets/icon.png"
+      "icon": "src/assets/icons",
+      "executableArgs": [
+        "--no-sandbox"
+      ],
+      "desktop": {
+        "Name": "BPG Converter"
+      }
     },
     "mac": {
       "target": "dmg",
@@ -75,7 +81,8 @@
       {
         "provider": "github",
         "owner": "DaveMex",
-        "repo": "bpg-converter-app"
+        "repo": "bpg-converter-app",
+        "releaseType": "release"
       }
     ]
   }
